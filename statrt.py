@@ -29,6 +29,7 @@ from fits.tools import getHeaderValue
 from fits.tools import isLight
 from fits.tools import isBias
 from fits.operations import discardImages
+from utils.system import ensureExist
 
 
 
@@ -38,10 +39,19 @@ from fits.operations import discardImages
 #originalCallibrationImagesPath = "/home/fgh/Astronomia/originals/callibration/"         # path of the original calibration images separated by observation nights
 
 inputPath = "/home/fgh/Dropbox/nit/"
-originalImagesPath = "/home/fgh/compartida/Astronomia/originals/images/"                           # path of the original images separated by observation nights
-originalCalibrationImagesPath = "/home/fgh/compartida/Astronomia/originals/callibration/"         # path of the original calibration images separated by observation nights
-calibratedImagePath = "/home/fgh/compartida/Astronomia/calibrated/images/"
-calibratedCalibrationImagesPath = "/home/fgh/compartida/Astronomia/calibrated/callibration/"
+outputPath = "/home/fgh/compartida/Astronomia/"
+
+# The destination directory structure will be
+originalImagesPath = os.path.join(outputPath, "originals/images/")                         # path of the original images separated by observation nights
+originalCalibrationImagesPath = os.path.join(outputPath, "originals/callibration/")         # path of the original calibration images separated by observation nights
+calibratedImagePath = os.path.join(outputPath, "calibrated/images/")
+calibratedCalibrationImagesPath = os.path.join(outputPath, "calibrated/callibration/")
+
+# Ensure all structure Exist and create if it don't exist
+ensureExist(originalImagesPath)
+ensureExist(originalCalibrationImagesPath)
+ensureExist(calibratedImagePath)
+ensureExist(calibratedCalibrationImagesPath)
 
 # First move the images to another folder separating it by calibration and images
 allFitsFiles = glob.glob(os.path.join(inputPath, "*.FIT"))
