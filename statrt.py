@@ -10,53 +10,100 @@ __author__ = 'fgh'
 # https://github.com/shkw0k/cookbook/tree/master/
 #        pip install "ipython[notebook]"        paquet que permet visualitzar
 # iniciem amb: ipython notebook --pylab inline
+#
+#
+# Folow this image acllibrations
+# http://nbviewer.ipython.org/gist/mwcraig/06060d789cc298bbb08e
 
 
-from astropy.io import fits
 import glob
+import os
+import shutil
+import ntpath
+
+from datetime import timedelta
+from datetime import datetime
+
+from fits.tools import getHeader
+from fits.tools import getHeaderValue
+from fits.tools import isLight
+from fits.tools import isBias
+from fits.operations import discardImages
 
 
-def getHeader (fname):
-    hdus = fits.open(fname)
-    header = hdus[0].header
-    hdus.close()
-    return header
 
-def imageTypeIs(fname, obj):
-    header = getHeader(fname)
-    return header["IMAGETYP"] == obj
+# Some initial variables
+#inputPath = "/home/fgh/Astronomia/input/*.FIT"
+#originalImagesPath = "/home/fgh/Astronomia/originals/images/"                           # path of the original images separated by observation nights
+#originalCallibrationImagesPath = "/home/fgh/Astronomia/originals/callibration/"         # path of the original calibration images separated by observation nights
 
-def getImageData (fname):
-    print(fname)
-    hdus = fits.open(fname)
-    data = hdus[0].data
-    hdus.close()
-    return data
+inputPath = "/home/fgh/Dropbox/nit/"
+originalImagesPath = "/home/fgh/compartida/Astronomia/originals/images/"                           # path of the original images separated by observation nights
+originalCalibrationImagesPath = "/home/fgh/compartida/Astronomia/originals/callibration/"         # path of the original calibration images separated by observation nights
+calibratedImagePath = "/home/fgh/compartida/Astronomia/calibrated/images/"
+calibratedCalibrationImagesPath = "/home/fgh/compartida/Astronomia/calibrated/callibration/"
 
-def avgFits (fitsFiles):
-    curr = getImageData(fitsFiles[0])
-    for f in fitsFiles[1:]:
-        curr = curr + getImageData(f)
-    curr = curr / len (fitsFiles)
-    return curr
+# First move the images to another folder separating it by calibration and images
+allFitsFiles = glob.glob(os.path.join(inputPath, "*.FIT"))
 
-def substractFits(original, subtracted):
-    curr = getImageData(original) - getImageData(subtracted)
-    return curr
+for file in allFitsFiles:
+    # First detect if file is image or calibration image
+    destinationPath = None
+    if isLight(file):
+        destinationPath = originalImagesPath
+    else:
+        destinationPath = originalCalibrationImagesPath
 
-AllFitsFiles = glob.glob("/home/fgh/Astronomia/flats/R*.FIT")
-Flats = [ f for f in AllFitsFiles if imageTypeIs(f, "Flat Field") ]
+    # Calculate subpath (the name is the date night of the observation)
+    fitsDate = datetime.strptime(getHeaderValue(file, "DATE-OBS"), "%Y-%m-%dT%H:%M:%S")
+    subPathName = fitsDate.strftime("%Y%m%d")
+    if int(fitsDate.strftime("%H")) < 12:
+        subPathName = (fitsDate - timedelta(days=1)).strftime("%Y%m%d")
 
-# avgFlats is the average of the biases
-avgFlats = avgFits(Flats)
+    # Create subpath if is need
+    destinationPath = os.path.join(destinationPath, subPathName)
+    if not os.path.exists(destinationPath):
+        os.makedirs(destinationPath)
 
-hdr = getHeader(Flats[0])
-masterFlats = "/home/fgh/Astronomia/flats/masterFlats.fits"
-fits.writeto(masterFlats, avgFlats, header=hdr, clobber=True)
+    # move file
+    shutil.move(file, os.path.join(destinationPath,ntpath.basename(file)))
 
-# substract average from first image
-substract = substractFits(Flats[0], masterFlats)
 
-hdr = getHeader(Flats[0])
-substractFlats = "/home/fgh/Astronomia/flats/substract.fits"
-fits.writeto(substractFlats, substract, header=hdr, clobber=True)
+# Generate calibration Masters
+# first start with BIAS
+for dir in os.listdir(originalCalibrationImagesPath):
+    if os.path.isdir(dir):
+        biasFiles = list()
+        for file in os.listdir(dir):
+            if isBias(file):
+                biasFiles.append(file)
+        if len(biasFiles) > 0:
+            #TODO: mirem si existeix ja el BIAS
+
+            #TODO: mirem que totes tinguin la mateixa temperatura
+
+            biasFiles = discardImages(biasFiles)
+
+            #hdr = getHeader(biasFiles[0])
+            #masterBiass = "/home/fgh/Astronomia/flats/masterFlats.fits"
+            #fits.writeto(masterFlats, avgFlats, header=hdr, clobber=True)
+
+
+
+
+
+#    IMAGETYP= 'Flat Field'
+#    IMAGETYP= 'Light Frame'
+#    CCD-TEMP
+#    EXPTIME
+#    FILTER
+
+
+
+
+
+
+
+
+
+
