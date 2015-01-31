@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'fgh'
 
 from astropy.io import fits
@@ -33,6 +34,18 @@ def isLight(file):
 
 def isBias(file):
     if getHeaderValue(file, "IMAGETYP") == "Bias Frame":
+        return True
+    else:
+        return False
+
+def isDark(file):
+    if getHeaderValue(file, "IMAGETYP") == "Dark Frame":
+        return True
+    else:
+        return False
+
+def isFlat(file):
+    if getHeaderValue(file, "IMAGETYP") == "Flat Field":
         return True
     else:
         return False
