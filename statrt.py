@@ -33,6 +33,7 @@ from fits.tools import isBias
 from fits.tools import isDark
 from fits.tools import isFlat
 from fits.tools import getImageData
+from fits.tools import roundAndCorrect
 from fits.operations import discardBadImages
 from fits.operations import medianFits
 from fits.operations import discardWrongTemperatureImages
@@ -208,10 +209,17 @@ def calibrateImages():
                     dataFit = dataFit - getImageData(masterBias)
                     dataFit = dataFit - getImageData(masterDark) * getHeaderValue(filePath, "EXPTIME")/ getHeaderValue(masterDark, "EXPTIME")
                     dataFit = dataFit / getImageData(masterFlat)
+                    dataFit = roundAndCorrect(dataFit)
+
+                    fliped = ""
+                    # To prevent meridian flip, set WEST as default meridian and flip EAST (param PIERSIDE of the header)
+                    if getHeaderValue(filePath, "PIERSIDE") == "EAST":
+                        dataFit = numpy.rot90(dataFit, 2)
+                        fliped = " flipped."
 
                     hdr = getHeader(filePath)
                     fits.writeto(destFilePath, dataFit, header=hdr, clobber=True)
-                    print("Image saved: " + destFilePath)
+                    print("Image saved: " + destFilePath + fliped)
 
 
 
@@ -230,7 +238,7 @@ if __name__ == '__main__':
     main()
 
 
-
+#       https://github.com/vterron/lemon
 
 
 

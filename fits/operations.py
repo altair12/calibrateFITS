@@ -91,3 +91,4 @@ def separateFitsByFilter(flats):
             result[filter] = list()
         result[filter].append(flat)
     return result
+
