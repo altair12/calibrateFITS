@@ -213,9 +213,13 @@ def calibrateImages():
 
                     fliped = ""
                     # To prevent meridian flip, set WEST as default meridian and flip EAST (param PIERSIDE of the header)
-                    if getHeaderValue(filePath, "PIERSIDE") == "EAST":
+                    # 2 possivilities, the first east image normally not need flip
+                    # - don't flip first east
+                    # - don't flip if OBJCTHA < 0,08
+                    if getHeaderValue(filePath, "PIERSIDE") == "EAST" and float(getHeaderValue(filePath, "OBJCTHA")) > 0.08:
                         dataFit = numpy.rot90(dataFit, 2)
                         fliped = " flipped."
+
 
                     hdr = getHeader(filePath)
                     fits.writeto(destFilePath, dataFit, header=hdr, clobber=True)
