@@ -21,6 +21,7 @@ import os
 import shutil
 import ntpath
 import numpy
+import yaml
 
 from datetime import timedelta
 from datetime import datetime
@@ -41,16 +42,32 @@ from fits.operations import getCloserMaster
 from fits.operations import separateFitsByFilter
 from utils.system import ensureExist
 
+def getArguments():
+    global inputPath
+    global outputPath
+    global originalImagesPath
+    global originalCalibrationImagesPath
+    global calibratedImagePath
+    global calibratedCalibrationImagesPath
+    global flip
+    global flip_side
+    global flip_ha
 
+    configuration = yaml.load(open("config.yaml", 'r'))
 
-inputPath = "/home/fgh/Dropbox/nit/"
-outputPath = "/home/fgh/compartida/Astronomia/"
+    inputPath = configuration["inputPath"]
+    outputPath = configuration["outputPath"]
 
-# The destination directory structure will be
-originalImagesPath = os.path.join(outputPath, "originals/images/")                          # path of the original images separated by observation nights
-originalCalibrationImagesPath = os.path.join(outputPath, "originals/callibration/")         # path of the original calibration images separated by observation nights
-calibratedImagePath = os.path.join(outputPath, "calibrated/images/")
-calibratedCalibrationImagesPath = os.path.join(outputPath, "calibrated/callibration/")
+    # The destination directory structure will be
+    originalImagesPath = os.path.join(outputPath, configuration["originalImagesPath"])                          # path of the original images separated by observation nights
+    originalCalibrationImagesPath = os.path.join(outputPath, configuration["originalCalibrationImagesPath"])    # path of the original calibration images separated by observation nights
+    calibratedImagePath = os.path.join(outputPath, configuration["calibratedImagePath"])
+    calibratedCalibrationImagesPath = os.path.join(outputPath, configuration["calibratedCalibrationImagesPath"])
+
+    # flip
+    flip = configuration["flip"]
+    flip_side = configuration["flip_side"]
+    flip_ha = configuration["flip_ha"]
 
 def createStructure():
     # Ensure all structure Exist and create if it don't exist
@@ -207,18 +224,15 @@ def calibrateImages():
 
                     dataFit = getImageData(filePath)
                     dataFit = dataFit - getImageData(masterBias)
-                    dataFit = dataFit - getImageData(masterDark) * getHeaderValue(filePath, "EXPTIME")/ getHeaderValue(masterDark, "EXPTIME")
+                    dataFit = dataFit - getImageData(masterDark) * getHeaderValue(filePath, "EXPTIME")/getHeaderValue(masterDark, "EXPTIME")
                     dataFit = dataFit / getImageData(masterFlat)
                     dataFit = roundAndCorrect(dataFit)
 
                     fliped = ""
-                    # To prevent meridian flip, set WEST as default meridian and flip EAST (param PIERSIDE of the header)
-                    # 2 possivilities, the first east image normally not need flip
-                    # - don't flip first east
-                    # - don't flip if OBJCTHA < 0,08
-                    if getHeaderValue(filePath, "PIERSIDE") == "EAST" and float(getHeaderValue(filePath, "OBJCTHA")) > 0.08:
-                        dataFit = numpy.rot90(dataFit, 2)
-                        fliped = " flipped."
+                    if flip:
+                        if getHeaderValue(filePath, "PIERSIDE") == flip_side and float(getHeaderValue(filePath, "OBJCTHA")) > flip_ha:
+                            dataFit = numpy.rot90(dataFit, 2)
+                            fliped = " flipped."
 
 
                     hdr = getHeader(filePath)
@@ -229,6 +243,8 @@ def calibrateImages():
 
 
 def main():
+    getArguments()
+
     createStructure()
     orderImages()
 
@@ -240,9 +256,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-#       https://github.com/vterron/lemon
-
 
 

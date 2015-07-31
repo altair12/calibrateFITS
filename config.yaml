@@ -1,0 +1,13 @@
+inputPath:      /home/fgh/Dropbox/nit/
+outputPath:     /home/fgh/compartida/Astronomia/
+
+# Directory structure in outputPath
+originalImagesPath:                 originals/images/           # path of the original images separated by observation nights
+originalCalibrationImagesPath:      originals/callibration/     # path of the original calibration images separated by observation nights
+calibratedImagePath:                calibrated/images/
+calibratedCalibrationImagesPath:    calibrated/callibration/
+
+# flip images after meridian flip
+flip:       True
+flip_side:  EAST
+flip_ha:    0.08
