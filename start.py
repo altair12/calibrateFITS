@@ -230,9 +230,10 @@ def calibrateImages():
 
                     fliped = ""
                     if flip:
-                        if getHeaderValue(filePath, "PIERSIDE") == flip_side and float(getHeaderValue(filePath, "OBJCTHA")) > flip_ha:
-                            dataFit = numpy.rot90(dataFit, 2)
-                            fliped = " flipped."
+                        if "PIERSIDE" in getHeader(filePath).keys() and "OBJCTHA" in getHeader(filePath).keys():    # if not exist means that telescope are not connected to maxildl
+                            if getHeaderValue(filePath, "PIERSIDE") == flip_side and float(getHeaderValue(filePath, "OBJCTHA")) > flip_ha:
+                                dataFit = numpy.rot90(dataFit, 2)
+                                fliped = " flipped."
 
 
                     hdr = getHeader(filePath)
