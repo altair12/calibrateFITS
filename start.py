@@ -42,6 +42,7 @@ from fits.operations import getCloserMaster
 from fits.operations import separateFitsByFilter
 from utils.system import ensureExist
 
+
 def getArguments():
     global inputPath
     global outputPath
@@ -235,12 +236,9 @@ def calibrateImages():
                                 dataFit = numpy.rot90(dataFit, 2)
                                 fliped = " flipped."
 
-
                     hdr = getHeader(filePath)
                     fits.writeto(destFilePath, dataFit, header=hdr, clobber=True)
                     print("Image saved: " + destFilePath + fliped)
-
-
 
 
 def main():
