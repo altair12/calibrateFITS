@@ -126,7 +126,7 @@ def generateMasterBias():
                     if len(biasFiles) > 10:
                         avgBias = medianFits(biasFiles)
                         hdr = getHeader(biasFiles[0])
-                        fits.writeto(masterPath, avgBias, header=hdr, clobber=True)
+                        fits.writeto(masterPath, avgBias, header=hdr, overwrite=True)
                         print("Master bias saved: " + masterPath)
                     else:
                         print("Not many files to calculate Master Bias of " + dirPath)
@@ -157,7 +157,7 @@ def generateMasterDarks():
                         avgDark = avgDirtyDark - getImageData(masterBias)
 
                         hdr = getHeader(darkFiles[0])
-                        fits.writeto(masterPath, avgDark, header=hdr, clobber=True)
+                        fits.writeto(masterPath, avgDark, header=hdr, overwrite=True)
                         print("Master Dark saved: " + masterPath)
                     else:
                         print("Not many files to calculate Master Bias of " + dirPath)
@@ -201,16 +201,15 @@ def generateMasterFlats():
                             masterFlatData = numpy.median(avgFlat, axis=0)
 
                             hdr = getHeader(flatFiles[0])
-                            fits.writeto(masterPath, masterFlatData, header=hdr, clobber=True)
+                            fits.writeto(masterPath, masterFlatData, header=hdr, overwrite=True)
                             print("Master Flat saved: " + masterPath)
                         else:
                             print("Not many files to calculate Master Flat of " + dirPath)
 
 
-
 def calibrateImages():
     for dir in os.listdir(originalImagesPath):
-        dirPath = os.path.join(originalImagesPath,dir)
+        dirPath = os.path.join(originalImagesPath, dir)
         if os.path.isdir(dirPath):
             for file in os.listdir(dirPath):
                 filePath = os.path.join(originalImagesPath, dir, file)
@@ -221,12 +220,16 @@ def calibrateImages():
 
                     masterBias = getCloserMaster("BIAS", dir, calibratedCalibrationImagesPath, None)
                     masterDark = getCloserMaster("DARK", dir, calibratedCalibrationImagesPath, None)
-                    masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath, getHeaderValue(filePath, "FILTER"))
+                    # masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath, getHeaderValue(filePath, "FILTER"))
+                    masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath,
+                                                 "R")
 
                     dataFit = getImageData(filePath)
+
                     dataFit = dataFit - getImageData(masterBias)
                     dataFit = dataFit - getImageData(masterDark) * getHeaderValue(filePath, "EXPTIME")/getHeaderValue(masterDark, "EXPTIME")
                     dataFit = dataFit / getImageData(masterFlat)
+
                     dataFit = roundAndCorrect(dataFit)
 
                     fliped = ""
@@ -237,7 +240,17 @@ def calibrateImages():
                                 fliped = " flipped."
 
                     hdr = getHeader(filePath)
-                    fits.writeto(destFilePath, dataFit, header=hdr, clobber=True)
+                    hdu = fits.PrimaryHDU(data=dataFit, header=hdr)
+                    hdulist = fits.HDUList([hdu])
+
+                    hdulist[0].header["BITPIX"] = hdr["BITPIX"]
+                    hdulist[0].header["NAXIS"] = hdr["NAXIS"]
+                    hdulist[0].header["BSCALE"] = hdr["BSCALE"]
+                    hdulist[0].header["BZERO"] = hdr["BZERO"]
+
+                    hdulist.writeto(destFilePath)
+
+                    # fits.writeto(destFilePath, dataFit, header=hdr, overwrite=True)
                     print("Image saved: " + destFilePath + fliped)
 
 
