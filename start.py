@@ -220,9 +220,8 @@ def calibrateImages():
 
                     masterBias = getCloserMaster("BIAS", dir, calibratedCalibrationImagesPath, None)
                     masterDark = getCloserMaster("DARK", dir, calibratedCalibrationImagesPath, None)
-                    # masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath, getHeaderValue(filePath, "FILTER"))
                     masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath,
-                                                 "R")
+                                                 getHeaderValue(filePath, "FILTER"))
 
                     dataFit = getImageData(filePath)
 
