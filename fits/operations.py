@@ -44,7 +44,7 @@ def discardBadImages(images):
                 if abs(value) > 1000:
                     num += abs(value)
 
-        if num > 20000:
+        if num > 40000:
             print image + " is too diferent than the average: " + str(num)
             images.remove(image)
     return images

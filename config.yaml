@@ -1,5 +1,5 @@
-inputPath:      /home/fgh/Dropbox/nit/
-outputPath:     /home/fgh/compartida/Astronomia/
+inputPath:      /home/fgh/Astronomia/nit
+outputPath:     /home/fgh/Astronomia/imatges
 
 # Directory structure in outputPath
 originalImagesPath:                 originals/images/           # path of the original images separated by observation nights
