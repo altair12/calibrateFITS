@@ -239,13 +239,8 @@ def calibrateImages():
                                 fliped = " flipped."
 
                     hdr = getHeader(filePath)
-                    hdu = fits.PrimaryHDU(data=dataFit, header=hdr)
+                    hdu = fits.PrimaryHDU(data=dataFit, header=hdr, do_not_scale_image_data=True)
                     hdulist = fits.HDUList([hdu])
-
-                    hdulist[0].header["BITPIX"] = hdr["BITPIX"]
-                    hdulist[0].header["NAXIS"] = hdr["NAXIS"]
-                    hdulist[0].header["BSCALE"] = hdr["BSCALE"]
-                    hdulist[0].header["BZERO"] = hdr["BZERO"]
 
                     hdulist.writeto(destFilePath)
 

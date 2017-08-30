@@ -52,20 +52,18 @@ def isFlat(file):
     else:
         return False
 
+
 def roundAndCorrect(matrix):
     new_matrix = list()
     for line in matrix:
         new_line = list()
         for value in line:
-
             if value < 0:
                 value = 0
 
             import numpy
 
             value = numpy.int16(round(value))
-
-
 
             new_line.append(value)
         new_matrix.append(new_line)
