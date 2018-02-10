@@ -224,8 +224,16 @@ def calibrateImages():
 
                     masterBias = getCloserMaster("BIAS", dir, calibratedCalibrationImagesPath, None)
                     masterDark = getCloserMaster("DARK", dir, calibratedCalibrationImagesPath, None)
+
+
+                    # add this line for problems with the filter wheel, default filter is R
+                    try:
+                        filter = getHeaderValue(filePath, "FILTER")
+                    except KeyError:
+                        filter = "R"
+
                     masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath,
-                                                 getHeaderValue(filePath, "FILTER"))
+                                                 filter)
 
                     dataFit = getImageData(filePath)
 

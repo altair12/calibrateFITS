@@ -86,7 +86,11 @@ def getCloserMaster(masterType, masterDir, calibratedCalibrationImagesPath, filt
 def separateFitsByFilter(flats):
     result = {}
     for flat in flats:
-        filter = getHeaderValue(flat, "FILTER")
+        # add this line for problems with the filter wheel, default filter is R
+        try:
+            filter = getHeaderValue(flat, "FILTER")
+        except KeyError:
+            filter = "R"
         if not result.has_key(filter):
             result[filter] = list()
         result[filter].append(flat)
