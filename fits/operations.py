@@ -7,8 +7,8 @@ import numpy
 from collections import Counter
 from datetime import date, datetime
 
-from tools import getImageData
-from tools import getHeaderValue
+from fits.tools import getImageData
+from fits.tools import getHeaderValue
 
 #def avgFits(fitsFiles):
 #    curr = getImageData(fitsFiles[0])
@@ -45,7 +45,7 @@ def discardBadImages(images):
                     num += abs(value)
 
         if num > 40000:
-            print image + " is too diferent than the average: " + str(num)
+            print(image + " is too diferent than the average: " + str(num))
             images.remove(image)
     return images
 
@@ -91,7 +91,8 @@ def separateFitsByFilter(flats):
             filter = getHeaderValue(flat, "FILTER")
         except KeyError:
             filter = "R"
-        if not result.has_key(filter):
+
+        if filter not in result.keys():
             result[filter] = list()
         result[filter].append(flat)
     return result
