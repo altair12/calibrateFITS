@@ -7,8 +7,8 @@ import numpy
 from collections import Counter
 from datetime import date, datetime
 
-from tools import getImageData
-from tools import getHeaderValue
+from fits.tools import getImageData
+from fits.tools import getHeaderValue
 
 #def avgFits(fitsFiles):
 #    curr = getImageData(fitsFiles[0])
@@ -45,7 +45,7 @@ def discardBadImages(images):
                     num += abs(value)
 
         if num > 40000:
-            print image + " is too diferent than the average: " + str(num)
+            print(image + " is too diferent than the average: " + str(num))
             images.remove(image)
     return images
 
@@ -86,8 +86,13 @@ def getCloserMaster(masterType, masterDir, calibratedCalibrationImagesPath, filt
 def separateFitsByFilter(flats):
     result = {}
     for flat in flats:
-        filter = getHeaderValue(flat, "FILTER")
-        if not result.has_key(filter):
+        # add this line for problems with the filter wheel, default filter is R
+        try:
+            filter = getHeaderValue(flat, "FILTER")
+        except KeyError:
+            filter = "R"
+
+        if filter not in result.keys():
             result[filter] = list()
         result[filter].append(flat)
     return result

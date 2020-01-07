@@ -70,12 +70,14 @@ def getArguments():
     flip_side = configuration["flip_side"]
     flip_ha = configuration["flip_ha"]
 
+
 def createStructure():
     # Ensure all structure Exist and create if it don't exist
     ensureExist(originalImagesPath)
     ensureExist(originalCalibrationImagesPath)
     ensureExist(calibratedImagePath)
     ensureExist(calibratedCalibrationImagesPath)
+
 
 def orderImages():
     # First move the images to another folder separating it by calibration and images
@@ -131,6 +133,7 @@ def generateMasterBias():
                     else:
                         print("Not many files to calculate Master Bias of " + dirPath)
 
+
 def generateMasterDarks():
     # Generate calibration Masters DARKS
     for dir in os.listdir(originalCalibrationImagesPath):
@@ -161,6 +164,7 @@ def generateMasterDarks():
                         print("Master Dark saved: " + masterPath)
                     else:
                         print("Not many files to calculate Master Bias of " + dirPath)
+
 
 def generateMasterFlats():
     # Generate calibration Masters FLAT
@@ -220,8 +224,16 @@ def calibrateImages():
 
                     masterBias = getCloserMaster("BIAS", dir, calibratedCalibrationImagesPath, None)
                     masterDark = getCloserMaster("DARK", dir, calibratedCalibrationImagesPath, None)
+
+
+                    # add this line for problems with the filter wheel, default filter is R
+                    try:
+                        filter = getHeaderValue(filePath, "FILTER")
+                    except KeyError:
+                        filter = "R"
+
                     masterFlat = getCloserMaster("FLAT", dir, calibratedCalibrationImagesPath,
-                                                 getHeaderValue(filePath, "FILTER"))
+                                                 filter)
 
                     dataFit = getImageData(filePath)
 
