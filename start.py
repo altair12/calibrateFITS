@@ -244,11 +244,12 @@ def calibrateImages():
                     dataFit = roundAndCorrect(dataFit)
 
                     fliped = ""
-                    if flip:
-                        if "PIERSIDE" in getHeader(filePath).keys() and "OBJCTHA" in getHeader(filePath).keys():    # if not exist means that telescope are not connected to maxildl
-                            if getHeaderValue(filePath, "PIERSIDE") == flip_side and float(getHeaderValue(filePath, "OBJCTHA")) > flip_ha:
-                                dataFit = numpy.rot90(dataFit, 2)
-                                fliped = " flipped."
+                    # Remove flip with rotator
+                    # if flip:
+                    #     if "PIERSIDE" in getHeader(filePath).keys() and "OBJCTHA" in getHeader(filePath).keys():    # if not exist means that telescope are not connected to maxildl
+                    #         if getHeaderValue(filePath, "PIERSIDE") == flip_side and float(getHeaderValue(filePath, "OBJCTHA")) > flip_ha:
+                    #             dataFit = numpy.rot90(dataFit, 2)
+                    #             fliped = " flipped."
 
                     hdr = getHeader(filePath)
                     hdu = fits.PrimaryHDU(data=dataFit, header=hdr, do_not_scale_image_data=True)
